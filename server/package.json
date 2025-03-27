@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "internal-chat": "file:",
     "ws": "^8.18.0"
   },
   "bin": "./index.js",

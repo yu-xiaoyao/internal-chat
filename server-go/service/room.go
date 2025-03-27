@@ -31,10 +31,8 @@ type JsonRoomManager struct {
 	roomPwd    map[string]RoomConfig
 }
 
-func (room JsonRoomManager) Init() {
+func (room *JsonRoomManager) Init() {
 	log.Debugf("开始加载房间数据. path = %v", room.ConfigPath)
-
-	room.roomPwd = make(map[string]RoomConfig)
 
 	file, err := os.ReadFile(room.ConfigPath)
 	if err != nil {
@@ -48,6 +46,8 @@ func (room JsonRoomManager) Init() {
 		return
 	}
 
+	room.roomPwd = make(map[string]RoomConfig)
+
 	var roomIds []string
 	for _, config := range configs {
 		roomIds = append(roomIds, config.RoomID)
@@ -59,7 +59,7 @@ func (room JsonRoomManager) Init() {
 	log.Infof("加载房间数据: %s", strings.Join(roomIds, ","))
 }
 
-func (room JsonRoomManager) GetByRoomId(roomId string) (RoomConfig, bool) {
+func (room *JsonRoomManager) GetByRoomId(roomId string) (RoomConfig, bool) {
 	roomConfig, exists := room.roomPwd[roomId]
 	return roomConfig, exists
 }
