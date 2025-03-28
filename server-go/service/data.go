@@ -18,8 +18,17 @@ type User struct {
 	Nickname string
 }
 
-// 存储用户数据的映射
-var data = make(map[string][]User)
+// GetKey 获取房间键值
+func GetKey(ip, roomID string) string {
+	if roomID != "" {
+		return roomID
+	}
+	isInternalNet := InternalNet(ip)
+	if isInternalNet {
+		return "internal"
+	}
+	return ip
+}
 
 // InternalNet 判断IP是否为内网IP
 /*
@@ -54,25 +63,31 @@ func InternalNet(ip string) bool {
 	return false
 }
 
-// GetKey 获取房间键值
-func GetKey(ip, roomID string) string {
-	if roomID != "" {
-		return roomID
-	}
-	isInternalNet := InternalNet(ip)
-	if isInternalNet {
-		return "internal"
-	}
-	return ip
+type UserManager interface {
+	RegisterUser(ip string, roomID string, socket *websocket.Conn, r *http.Request) string
+	UnregisterUser(ip, roomID, id string) []User
+	GetUserList(ip, roomID string) []User
+	GetUser(ip, roomID, uid string) *User
+	UpdateNickname(ip, roomID, id, nickname string) bool
 }
 
-// RegisterUser 注册用户
-func RegisterUser(ip string, roomID string, socket *websocket.Conn, nickFn func(key string) (*http.Cookie, error)) string {
+type SimpleUserManager struct {
+	// 存储用户数据的映射
+	data map[string][]User
+}
+
+func NewSimpleUserManager() *SimpleUserManager {
+	return &SimpleUserManager{
+		data: make(map[string][]User),
+	}
+}
+
+func (manager *SimpleUserManager) RegisterUser(ip string, roomID string, socket *websocket.Conn, r *http.Request) string {
 	key := GetKey(ip, roomID)
 
 	// 如果房间不存在，创建房间
-	if _, exists := data[key]; !exists {
-		data[key] = []User{}
+	if _, exists := manager.data[key]; !exists {
+		manager.data[key] = []User{}
 	}
 
 	// 生成随机ID
@@ -80,18 +95,17 @@ func RegisterUser(ip string, roomID string, socket *websocket.Conn, nickFn func(
 	id := fmt.Sprintf("%02d%03d", rand.Intn(100), time.Now().Nanosecond()/1000000)
 
 	// 确保ID唯一
-	for _, exists := data[id]; exists; {
+	for _, exists := manager.data[id]; exists; {
 		id = fmt.Sprintf("%02d%03d", rand.Intn(100), time.Now().Nanosecond()/1000000)
-		_, exists = data[id]
+		_, exists = manager.data[id]
 	}
 
 	// 获取昵称
-	cn, err := nickFn("nickname")
 	nickname := ""
+	cookie, err := r.Cookie("nickname")
 	if err == nil {
-		nickname = cn.Value
+		nickname = cookie.Value
 	}
-
 	// 创建用户并添加到房间
 	user := User{
 		ID:       id,
@@ -99,15 +113,13 @@ func RegisterUser(ip string, roomID string, socket *websocket.Conn, nickFn func(
 		Targets:  make(map[string]interface{}),
 		Nickname: nickname,
 	}
-	data[key] = append(data[key], user)
+	manager.data[key] = append(manager.data[key], user)
 
 	return id
 }
-
-// UnregisterUser 注销用户
-func UnregisterUser(ip, roomID, id string) []User {
+func (manager *SimpleUserManager) UnregisterUser(ip, roomID, id string) []User {
 	key := GetKey(ip, roomID)
-	room, exists := data[key]
+	room, exists := manager.data[key]
 	if !exists {
 		return nil
 	}
@@ -115,28 +127,24 @@ func UnregisterUser(ip, roomID, id string) []User {
 	for i, user := range room {
 		if user.ID == id {
 			// 移除用户
-			data[key] = append(room[:i], room[i+1:]...)
+			manager.data[key] = append(room[:i], room[i+1:]...)
 			return []User{user}
 		}
 	}
 
 	return nil
 }
-
-// GetUserList 获取用户列表
-func GetUserList(ip, roomID string) []User {
+func (manager *SimpleUserManager) GetUserList(ip, roomID string) []User {
 	key := GetKey(ip, roomID)
-	room, exists := data[key]
+	room, exists := manager.data[key]
 	if !exists {
 		return []User{}
 	}
 	return room
 }
-
-// GetUser 获取用户
-func GetUser(ip, roomID, uid string) *User {
+func (manager *SimpleUserManager) GetUser(ip, roomID, uid string) *User {
 	key := GetKey(ip, roomID)
-	room, exists := data[key]
+	room, exists := manager.data[key]
 	if !exists {
 		return nil
 	}
@@ -149,18 +157,16 @@ func GetUser(ip, roomID, uid string) *User {
 
 	return nil
 }
-
-// UpdateNickname 更新用户昵称
-func UpdateNickname(ip, roomID, id, nickname string) bool {
+func (manager *SimpleUserManager) UpdateNickname(ip, roomID, id, nickname string) bool {
 	key := GetKey(ip, roomID)
-	room, exists := data[key]
+	room, exists := manager.data[key]
 	if !exists {
 		return false
 	}
 
 	for i, user := range room {
 		if user.ID == id {
-			data[key][i].Nickname = nickname
+			manager.data[key][i].Nickname = nickname
 			return true
 		}
 	}
