@@ -55,7 +55,7 @@ var roomManager RoomManager
 
 // HandleWebSocket WebSocket连接处理
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
-	log.Debugf("Url: %s", r.URL)
+	log.Tracef("Request Url: %s", r.URL)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Errorln("Failed to upgrade connection:", err)
@@ -76,9 +76,12 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		pwd = strings.TrimSpace(pathParts[2])
 	}
 
+	log.Tracef("Parse. roomId = %s, pwd = %s", roomId, pwd)
+
 	var turns []TurnInfo
 	// 兼容旧版本
 	if roomId == "ws" || roomId == "" {
+		log.Debugf("兼容旧版本. Room Id: %s", roomId)
 		roomId = ""
 	} else {
 		// 验证房间密码
@@ -90,7 +93,6 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// 注册用户
 	currentId := RegisterUser(ip, roomId, conn, func(key string) (*http.Cookie, error) {
 		return r.Cookie(key)
 	})
@@ -101,11 +103,9 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	log.Infof("%s@%s. roomId = [%s] connected", currentId, ip, roomIdString(roomId))
 
 	// 向所有用户发送房间信息
-	for _, user := range GetUserList(ip, roomId) {
-		socketSendRoomInfo(user.Socket, ip, roomId)
-	}
+	broadcastRoomInfo(ip, roomId)
 
-	// 通知用户已加入房间
+	// 通知用户已加入房间,发送指令,让前端使用 webrtc 开始连接
 	socketSendJoinedRoom(conn, currentId)
 
 	// 处理消息
@@ -143,7 +143,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		if message.UID == "" || message.TargetID == "" {
 			continue
 		}
-
+		log.Tracef("Received message: %s", string(msg))
 		// 获取发送者和接收者
 		me := GetUser(ip, roomId, message.UID)
 		target := GetUser(ip, roomId, message.TargetID)
@@ -191,18 +191,14 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 			success := UpdateNickname(ip, roomId, message.UID, data.Nickname)
 			if success {
 				// 通知所有用户昵称更新
-				for _, user := range GetUserList(ip, roomId) {
-					socketSendNicknameUpdated(user.Socket, message.UID, data.Nickname)
-				}
+				broadcastNicknameUpdated(ip, roomId, message.UID, data.Nickname)
 			}
 		}
 	}
 
 	// 用户断开连接
 	UnregisterUser(ip, roomId, currentId)
-	for _, user := range GetUserList(ip, roomId) {
-		socketSendRoomInfo(user.Socket, ip, roomId)
-	}
+	broadcastRoomInfo(ip, roomId)
 	log.Infof("%s@%s. roomId = [%s] disconnected", currentId, ip, roomIdString(roomId))
 }
 
@@ -235,8 +231,12 @@ func socketSendUserId(conn *websocket.Conn, id, roomId string, turns []TurnInfo)
 }
 
 // 发送房间信息
-func socketSendRoomInfo(conn *websocket.Conn, ip, roomId string) {
+func broadcastRoomInfo(ip, roomId string) {
 	users := GetUserList(ip, roomId)
+	if len(users) == 0 {
+		return
+	}
+
 	result := make([]map[string]string, 0, len(users))
 	for _, user := range users {
 		result = append(result, map[string]string{
@@ -244,7 +244,9 @@ func socketSendRoomInfo(conn *websocket.Conn, ip, roomId string) {
 			"nickname": user.Nickname,
 		})
 	}
-	send(conn, SendTypeRoomInfo, result)
+	for _, user := range users {
+		send(user.Socket, SendTypeRoomInfo, result)
+	}
 }
 
 // 发送加入房间通知
@@ -279,11 +281,13 @@ func socketSendConnected(conn *websocket.Conn, targetId string, answer json.RawM
 }
 
 // 发送昵称更新通知
-func socketSendNicknameUpdated(conn *websocket.Conn, id, nickname string) {
-	send(conn, SendTypeNicknameUpdate, map[string]string{
-		"id":       id,
-		"nickname": nickname,
-	})
+func broadcastNicknameUpdated(ip, roomId, id, nickname string) {
+	for _, user := range GetUserList(ip, roomId) {
+		send(user.Socket, SendTypeNicknameUpdate, map[string]string{
+			"id":       id,
+			"nickname": nickname,
+		})
+	}
 }
 
 func getRequestClientIp(r *http.Request) string {

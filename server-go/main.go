@@ -26,7 +26,7 @@ func main() {
 		*port = flag.Arg(0)
 	}
 
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.TraceLevel)
 
 	// 加载房间密码配置
 	service.LoadRoomConfig()
