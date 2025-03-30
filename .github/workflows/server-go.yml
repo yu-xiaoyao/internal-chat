@@ -44,6 +44,23 @@ jobs:
     - name: Build for MacOS
       run: GOOS=darwin GOARCH=amd64 go build -o bin/server-go-darwin-amd64
 
-    - name: list bin
-      run: ls 
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        name: server-go
+        path: |
+          bin/server-go-linux-amd64
+          bin/server-go-windows-amd64.exe
+          bin/server-go-darwin-amd64
 
+    - name: Release artifacts
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          bin/server-go-linux-amd64
+          bin/server-go-windows-amd64.exe
+          bin/server-go-darwin-amd64
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
