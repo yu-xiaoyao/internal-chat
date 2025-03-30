@@ -52,13 +52,13 @@ func InternalNet(ip string) bool {
 	if strings.HasPrefix(ip, "192.168.") {
 		return true
 	}
-	// TODO localhost
-	if strings.EqualFold("127.0.0.1", ip) {
-		return true
-	}
-	if strings.EqualFold("::1", ip) {
-		return true
-	}
+	/*	// TODO localhost
+		if strings.EqualFold("127.0.0.1", ip) {
+			return true
+		}
+		if strings.EqualFold("::1", ip) {
+			return true
+		}*/
 
 	return false
 }

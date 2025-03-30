@@ -25,10 +25,23 @@ type RoomManager interface {
 	GetByRoomId(roomId string) (RoomConfig, bool)
 }
 
+var roomManager RoomManager
+
 // region JsonRoomManager
 type JsonRoomManager struct {
 	ConfigPath string
 	roomPwd    map[string]RoomConfig
+}
+
+func InitRoomManager() {
+	initJsonRoomManager(serverConfig.RoomPwdPath)
+}
+
+func initJsonRoomManager(configPath string) {
+	roomManager = &JsonRoomManager{
+		ConfigPath: configPath,
+	}
+	roomManager.Init()
 }
 
 func (room *JsonRoomManager) Init() {

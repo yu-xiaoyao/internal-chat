@@ -4,7 +4,6 @@ import (
 	"flag"
 	log "github.com/sirupsen/logrus"
 	"internal-chat/server-go/service"
-	"net/http"
 )
 
 func init() {
@@ -18,21 +17,11 @@ func init() {
 
 func main() {
 	// 解析命令行参数
-	port := flag.String("port", "8082", "Port to listen on")
+	configPath := flag.String("config", "", "Path to the configuration file")
+	port := flag.Int("port", 8082, "Port to listen on")
 	flag.Parse()
-
-	// 如果有命令行参数但没有使用flag格式，则第一个参数作为端口
-	if flag.NArg() > 0 {
-		*port = flag.Arg(0)
-	}
-
-	log.SetLevel(log.TraceLevel)
-
-	// 加载房间密码配置
-	service.LoadRoomConfig()
-
-	// 设置WebSocket处理函数
-	http.HandleFunc("/", service.HandleWebSocket)
-	log.Infof("Signaling server running on ws://localhost:%s", *port)
-	log.Fatal(http.ListenAndServe(":"+*port, nil))
+	// 加载配置
+	service.LoadConfig(*configPath, *port)
+	// 启动 web server
+	service.StartWebServer()
 }

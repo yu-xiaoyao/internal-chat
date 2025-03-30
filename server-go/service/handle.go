@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -52,7 +53,14 @@ var upgrader = websocket.Upgrader{
 	},
 }
 var userManager UserManager = NewSimpleUserManager()
-var roomManager RoomManager
+
+func StartWebServer() {
+	InitRoomManager()
+	// 设置WebSocket处理函数
+	http.HandleFunc("/", HandleWebSocket)
+	log.Infof("Signaling server running on ws://localhost:%d", serverConfig.Port)
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(serverConfig.Port), nil))
+}
 
 // HandleWebSocket WebSocket连接处理
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {

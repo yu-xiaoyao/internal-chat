@@ -461,7 +461,9 @@ function enterTxt(event) {
     return;
   }
   if (event.keyCode === 13) {
-    sendMessage();
+    if (messageInput.value.trim()) {  // 只有当消息不为空时才发送
+      sendMessage();
+    }
     event.preventDefault();
   }
 }
