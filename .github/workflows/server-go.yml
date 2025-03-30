@@ -32,6 +32,9 @@ jobs:
     - name: Install dependencies
       run: go mod download
 
+    - name: go.mod
+      run: go mod tidy
+
     - name: Build for Linux
       run: GOOS=linux GOARCH=amd64 go build -o bin/server-go-linux-amd64
 
