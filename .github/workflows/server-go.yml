@@ -43,3 +43,7 @@ jobs:
 
     - name: Build for MacOS
       run: GOOS=darwin GOARCH=amd64 go build -o bin/server-go-darwin-amd64
+
+    - name: list bin
+      run: ls -l 
+
