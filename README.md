@@ -16,6 +16,8 @@ demo演示：https://fagedongxi.com
 ## 服务端部署（仅部署服务端不行，一定看到最后的“网页部署”）：
 部署介绍：https://v.douyin.com/iUWewPmf/
 
+## GO 服务端
+
 ### 源码方式
 1. 安装nodejs，node版本没有测试，我用的是 `16.20.2`
 2. 下载源码（服务端仅需要`server`目录）
