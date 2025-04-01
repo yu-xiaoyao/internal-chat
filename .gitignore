@@ -27,4 +27,5 @@ internal-chat-macos
 internal-chat-win.exe
 server-go/build/
 server-go/build*/
+server-go/bin/
 server-go/go.sum
