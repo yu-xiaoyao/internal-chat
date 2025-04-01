@@ -678,6 +678,7 @@ function toggleUsersList() {
 document.addEventListener('DOMContentLoaded', function () {
   const toggleBtn = document.querySelector('.toggle-users-btn');
   const overlay = document.querySelector('.mobile-overlay');
+  const messageInput = document.getElementById('messageInput');
 
   toggleBtn.addEventListener('click', toggleUsersList);
   overlay.addEventListener('click', toggleUsersList);
@@ -685,5 +686,31 @@ document.addEventListener('DOMContentLoaded', function () {
   // Hide users list by default on mobile
   if (window.innerWidth <= 768) {
     document.body.classList.remove('show-users');
+  }
+  
+  // 处理移动端虚拟键盘弹出时的布局调整
+  if ('ontouchstart' in window) {
+    // 监听输入框获取焦点事件
+    messageInput.addEventListener('focus', function() {
+      // 给body添加类，可以在CSS中针对键盘弹出状态进行样式调整
+      document.body.classList.add('keyboard-open');
+      
+      // 滚动到底部，确保输入区域可见
+      setTimeout(function() {
+        window.scrollTo(0, document.body.scrollHeight);
+      }, 300);
+    });
+    
+    // 监听输入框失去焦点事件
+    messageInput.addEventListener('blur', function() {
+      document.body.classList.remove('keyboard-open');
+    });
+    
+    // 优化触摸体验，防止双击缩放
+    document.addEventListener('touchstart', function(e) {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   }
 });

@@ -395,6 +395,11 @@ pre {
 
 /* Mobile responsive styles */
 @media screen and (max-width: 768px) {
+  body, html {
+    height: 100%;
+    overflow: hidden;
+  }
+
   .mobile-only {
     display: block;
   }
@@ -435,10 +440,146 @@ pre {
   .left {
     margin: 10px;
     border-radius: 8px;
+    width: calc(100% - 20px);
   }
 
   body.show-users .toggle-users-btn {
     color: #64B5F6;
     background-color: #363636;
+  }
+
+  /* 调整聊天区域 */
+  .chat-wrapper {
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .chat-item {
+    padding: 6px 12px;
+  }
+
+  .chat-item .chat-item_content pre {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  /* 调整输入区域 */
+  .txt-msg {
+    min-height: 80px;
+    font-size: 16px;
+    padding: 10px;
+    margin: 0 10px 10px 10px;
+  }
+
+  .toolbar {
+    margin: 0 10px;
+    padding: 8px;
+  }
+
+  /* 调整模态框 */
+  .modal-content {
+    width: 90%;
+    max-width: 350px;
+    padding: 20px;
+  }
+
+  /* 调整按钮大小，更适合触摸 */
+  .toolbar-btn, .copy-btn, .send-btn {
+    padding: 10px;
+  }
+
+  .toolbar-btn svg, .copy-btn svg, .send-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* 调整用户列表项 */
+  .right ul li {
+    padding: 10px 12px;
+    font-size: 15px;
+  }
+
+  /* 文件拖拽提示 */
+  body.dragover .dragtip h1 {
+    font-size: 24px;
+  }
+  
+  /* 优化用户选择模态框 */
+  .user-select-item {
+    padding: 10px;
+    margin: 8px 0;
+  }
+  
+  .user-select-item label {
+    font-size: 15px;
+  }
+  
+  /* 优化进度条 */
+  .progress-text {
+    font-size: 13px;
+  }
+  
+  .progress-bar {
+    height: 10px;
+  }
+  
+  /* 优化模态框按钮 */
+  .modal-footer button {
+    padding: 10px 20px;
+    font-size: 15px;
+  }
+}
+
+/* 针对更小屏幕的设备（如手机）的额外样式 */
+@media screen and (max-width: 480px) {
+  .left {
+    margin: 5px;
+    width: calc(100% - 10px);
+  }
+  
+  .chat-item {
+    padding: 5px 10px;
+  }
+  
+  .chat-item .chat-item_user {
+    font-size: 13px;
+  }
+  
+  .chat-item .chat-item_content pre {
+    font-size: 13px;
+  }
+  
+  .txt-msg {
+    min-height: 70px;
+    margin: 0 5px 5px 5px;
+  }
+  
+  .toolbar {
+    margin: 0 5px;
+    padding: 6px;
+  }
+  
+  .modal-content {
+    padding: 15px;
+  }
+}
+
+/* 虚拟键盘弹出时的样式调整 */
+@media screen and (max-width: 768px) {
+  body.keyboard-open .chat-wrapper {
+    /* 当键盘弹出时，减小聊天区域高度，让更多空间给输入区 */
+    max-height: 40vh;
+  }
+  
+  body.keyboard-open .txt-msg {
+    /* 确保输入框在键盘弹出时仍然可见 */
+    position: relative;
+    z-index: 10;
+  }
+  
+  /* 防止页面弹跳 */
+  body.keyboard-open {
+    height: auto;
+    overflow: visible;
   }
 }

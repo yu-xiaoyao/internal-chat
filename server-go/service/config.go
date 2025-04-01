@@ -3,11 +3,12 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
 	"path/filepath"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type LogFileConfig struct {
@@ -33,7 +34,7 @@ func LoadConfig(path string, port int) {
 	// default
 	serverConfig = &ServerConfig{
 		Port:    port,
-		LogType: "file",
+		LogType: "console",
 		LogFile: &LogFileConfig{
 			LogDir:     "./logs",
 			Filename:   "chat.log",
