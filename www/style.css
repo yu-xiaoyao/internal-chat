@@ -159,8 +159,6 @@ pre {
   appearance: none;
 }
 .modal {
-  display: none;
-  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -171,7 +169,7 @@ pre {
 
 .modal-content {
   position: absolute;
-  top: 50%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: #2a2a2a;
@@ -366,7 +364,8 @@ pre {
 
 .nickname-input-container input {
   width: 100%;
-  padding: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
   border: 1px solid #363636;
   background: #2a2a2a;
   color: #e0e0e0;

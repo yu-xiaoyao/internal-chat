@@ -49,7 +49,7 @@
 
   <div class="mobile-overlay"></div>
 
-  <div class="modal" id="userSelectModal">
+  <dialog class="modal" id="userSelectModal">
     <div class="modal-content">
       <h3>选择接收用户</h3>
       <div class="user-list" id="userSelectList">
@@ -65,9 +65,9 @@
         <button onclick="confirmSendFile()">发送</button>
       </div>
     </div>
-  </div>
+  </dialog>
 
-  <div class="modal" id="nicknameModal">
+  <dialog class="modal" id="nicknameModal">
     <div class="modal-content">
       <h3>设置昵称</h3>
       <div class="nickname-input-container">
@@ -78,9 +78,9 @@
         <button onclick="saveNickname()">保存</button>
       </div>
     </div>
-  </div>
+  </dialog>
 
-  <div class="modal" id="passwordModal">
+  <dialog class="modal" id="passwordModal">
     <div class="modal-content">
       <h3>请输入房间密码</h3>
       <div class="nickname-input-container">
@@ -90,7 +90,7 @@
         <button onclick="submitRoomPassword()">确认</button>
       </div>
     </div>
-  </div>
+  </dialog>
 
   <script src="./index.js?v=20"></script>
 </body>

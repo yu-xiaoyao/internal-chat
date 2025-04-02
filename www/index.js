@@ -20,7 +20,7 @@ function initPage() {
     // 如果有roomId，显示密码输入框并隐藏主界面
     document.querySelector('.left').style.display = 'none';
     document.querySelector('.right').style.display = 'none';
-    document.getElementById('passwordModal').style.display = 'block';
+    document.getElementById('passwordModal').showModal();
 
     // 添加回车事件监听
     const passwordInput = document.getElementById('roomPasswordInput');
@@ -36,7 +36,7 @@ function initPage() {
     // 没有roomId，显示主界面
     document.querySelector('.left').style.display = 'flex';
     document.querySelector('.right').style.display = 'block';
-    document.getElementById('passwordModal').style.display = 'none';
+    document.getElementById('passwordModal').close();
     // 连接WebSocket
     connectWebSocket();
   }
@@ -55,7 +55,7 @@ function submitRoomPassword() {
   }
 
   // 隐藏密码输入框，显示主界面
-  document.getElementById('passwordModal').style.display = 'none';
+  document.getElementById('passwordModal').close();
   document.querySelector('.left').style.display = 'flex';
   document.querySelector('.right').style.display = 'block';
 
@@ -160,7 +160,7 @@ function showErrorModal() {
   // 显示密码输入框，隐藏主界面
   document.querySelector('.left').style.display = 'none';
   document.querySelector('.right').style.display = 'none';
-  document.getElementById('passwordModal').style.display = 'block';
+  document.getElementById('passwordModal').close();
   document.getElementById('roomPasswordInput').value = '';
   document.getElementById('roomPasswordInput').focus();
 }
@@ -296,7 +296,7 @@ async function sendFile(file) {
       const fileInfo = { name: file.name, size: file.size };
 
       // 显示进度条
-      modal.style.display = 'block';
+      modal.showModal();
       document.getElementById('userSelectList').style.display = 'none';
       modal.querySelector('.modal-footer').style.display = 'block';
       modal.querySelector('.modal-footer button:last-child').style.display = 'none';
@@ -437,7 +437,7 @@ async function joinedConnection(data) {
 function refreshUsersHTML() {
   document.querySelector('#users').innerHTML = users.map(u => {
     const isConnected = u.isMe || u.isConnected();
-    console.log(isConnected, '----');
+    console.log('refreshUsersHTML','isConnected',u.id, isConnected);
     const statusClass = isConnected ? 'connected' : 'disconnected';
     const statusIcon = isConnected ?
       `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>` :
@@ -501,7 +501,7 @@ function showUserSelectModal() {
     }
   });
 
-  modal.style.display = 'block';
+  modal.showModal();
 }
 
 function cancelSendFile() {
@@ -509,7 +509,7 @@ function cancelSendFile() {
     currentTransferUser.cancelTransfer();
   }
   const modal = document.getElementById('userSelectModal');
-  modal.style.display = 'none';
+  modal.close();
   pendingFile = null;
   currentTransferUser = null;
 }
@@ -570,7 +570,7 @@ async function confirmSendFile() {
     }
   }
 
-  modal.style.display = 'none';
+  modal.showModal();
   pendingFile = null;
 }
 
@@ -615,10 +615,11 @@ document.querySelector('.send-btn').addEventListener('click', () => {
 
 function showNicknameModal() {
   const modal = document.getElementById('nicknameModal');
+  modal.showModal();
+
   const input = document.getElementById('nicknameInput');
   input.value = currentNickname;
-  modal.style.display = 'block';
-
+  
   // 自动获取焦点
   setTimeout(() => input.focus(), 0);
 
@@ -634,7 +635,7 @@ function showNicknameModal() {
 function closeNicknameModal() {
   const modal = document.getElementById('nicknameModal');
   const input = document.getElementById('nicknameInput');
-  modal.style.display = 'none';
+  modal.close();
 
   // 清除回车事件监听
   input.onkeydown = null;
